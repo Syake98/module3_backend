@@ -1,46 +1,58 @@
-const yargs = require("yargs");
-const pkg = require("./package.json");
-const { addNote, printNotes, removeNote } = require("./notes.controller");
-// const { command } = require("yargs");
+const express = require("express");
+const chalk = require("chalk");
+const path = require("path");
+const {
+  addNote,
+  getNotes,
+  removeNote,
+  editNote,
+} = require("./notes.controller");
 
-yargs.version(pkg.version);
+const port = 3000;
+const app = express();
 
-yargs.command({
-  command: "add",
-  describe: "Add new note to list",
-  builder: {
-    title: {
-      type: "string",
-      describe: "Note title",
-      demandOption: true,
-    },
-  },
-  handler({ title }) {
-    addNote(title);
-  },
+app.set("view engine", "ejs");
+app.set("views", "pages");
+
+app.use(express.json());
+app.use(express.static(path.resolve(__dirname, "public")));
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
+app.get("/", async (req, res) => {
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+  });
 });
 
-yargs.command({
-  command: "list",
-  describe: "Print all notes",
-  async handler() {
-    printNotes();
-  },
+app.post("/", async (req, res) => {
+  await addNote(req.body.title);
+  res.redirect("/");
 });
 
-yargs.command({
-  command: "remove",
-  describe: "Remove note by id",
-  builder: {
-    id: {
-      describe: "Note to delete by id",
-      demandOption: true,
-      type: "string",
-    },
-  },
-  handler({ id }) {
-    removeNote(id);
-  },
+app.put("/", async (req, res) => {
+  await editNote(req.body.id, req.body.title);
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+  });
 });
 
-yargs.parse();
+app.delete("/:id", async (req, res) => {
+  await removeNote(req.params.id);
+  res.render("index", {
+    title: "Express App",
+    notes: await getNotes(),
+    created: false,
+  });
+});
+
+app.listen(port, () => {
+  console.log(chalk.green(`Server has been started on port ${port}...`));
+});

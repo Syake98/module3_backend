@@ -7,14 +7,23 @@ const notesPath = path.join(__dirname, "db.json");
 async function addNote(title) {
   const notes = await getNotes();
   const note = {
-    title,
     id: Date.now().toString(),
+    title,
   };
 
   notes.push(note);
 
   await saveNotes(notes);
   console.log(chalk.bgGreen("Note was added!"));
+}
+
+async function editNote(id, newTitle) {
+  const notes = await getNotes();
+  const index = notes.findIndex((note) => note.id === id);
+  notes[index].title = newTitle;
+
+  await saveNotes(notes);
+  console.log(chalk.bgBlue("Note was changed!"));
 }
 
 async function getNotes() {
@@ -36,14 +45,16 @@ async function printNotes() {
 }
 
 async function removeNote(id) {
-  let notes = await getNotes();
+  const notes = await getNotes();
+  const filtered = notes.filter((note) => note.id !== id);
 
-  notes = notes.filter((note) => note.id !== id);
-  await saveNotes(notes);
+  await saveNotes(filtered);
+  console.log(chalk.red(`Note with id="${id}" has been removed.`));
 }
 
 module.exports = {
   addNote,
-  printNotes,
+  getNotes,
   removeNote,
+  editNote,
 };
