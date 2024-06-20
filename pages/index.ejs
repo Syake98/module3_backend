@@ -39,7 +39,8 @@
           <li
             class="list-group-item d-flex justify-content-between align-items-center"
           >
-            <span><%= notes[i].title %></span>
+            <span class="note-title"><%= notes[i].title %></span>
+            <input class="note-input" value="<%= notes[i].title %>" hidden />
             <div>
               <button
                 class="btn btn-primary"
@@ -47,6 +48,22 @@
                 data-id="<%= notes[i].id %>"
               >
                 Редактировать
+              </button>
+              <button
+                class="btn btn-success"
+                data-type="save"
+                data-id="<%= notes[i].id %>"
+                hidden
+              >
+                Сохранить
+              </button>
+              <button
+                class="btn btn-danger"
+                data-type="cancel"
+                data-id="<%= notes[i].id %>"
+                hidden
+              >
+                Отменить
               </button>
               <button
                 class="btn btn-danger"
